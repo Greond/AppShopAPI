@@ -18,10 +18,10 @@ namespace AppShopAPI.Controllers
             this.DBContext = DBContext;
         }
 
-        [HttpGet("GetItems")]
+        [HttpGet]
         public async Task<ActionResult<List<ItemDTO>>> Get()
         {
-          //  var List = await DBContext.Items.ToListAsync();
+            //  var List = await DBContext.Items.ToListAsync();
 
             var List = await DBContext.Items.Select(
                 s => new ItemDTO
@@ -45,17 +45,17 @@ namespace AppShopAPI.Controllers
             if (List.Count > 0)
             {
                 return List;
-               // return Ok(List);
+                // return Ok(List);
             }
             else
             {
                 return NotFound();
             }
         }
-        [HttpGet("GetItemById")]
+        [HttpGet("{Id}")]
         public async Task<ActionResult<ItemDTO>> GetItemById(long Id)
         {
-            // Item item = await DBContext.Items.SingleOrDefaultAsync(s => s.Id == Id);
+            // Item item = await DBContext.Items.FirstOrDefaultAsync(s => s.Id == Id);
             ItemDTO item = await DBContext.Items.Select(
                 s => new ItemDTO
                 {
@@ -108,6 +108,9 @@ namespace AppShopAPI.Controllers
         public async Task<HttpStatusCode> UpdateItem(ItemDTO item)
         {
             var entity = await DBContext.Items.FirstOrDefaultAsync(s => s.Id == item.Id);
+
+            if (entity == null || entity.Id == null)
+            { return HttpStatusCode.NotFound; }    
 
             entity.Name = item.Name;
             entity.Description = item.Description;
