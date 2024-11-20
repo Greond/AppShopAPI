@@ -3,6 +3,7 @@ using AppShopAPI.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Net;
 
 namespace AppShopAPI.Controllers
@@ -82,6 +83,40 @@ namespace AppShopAPI.Controllers
                 return item;
             }
         }
+
+        [HttpGet("ByProperty")]
+        public async Task<ActionResult<List<ItemDTO>>> GetByProperty([FromQuery] bool Stock)
+        {
+            var List = await DBContext.Items.Where(s => s.Stock == Stock).Select(
+                s => new ItemDTO
+                {
+                    Id = s.Id,
+                    Name = s.Name,
+                    Description = s.Description,
+                    ProductType = s.ProductType,
+                    Price = s.Price,
+                    OldPrice = s.OldPrice,
+                    Stock = s.Stock,
+                    Icon = s.Icon,
+                    Stars = s.Stars,
+                    ReviewsCount = s.ReviewsCount,
+                    Quantity = s.Quantity,
+                    MainDescription = s.MainDescription,
+                    Specifications = s.Specifications
+                }
+                ).ToListAsync();
+
+            if (List.Count > 0)
+            {
+                return List;
+                // return Ok(List);
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
         [HttpPost("InsertItem")]
         public async Task<HttpStatusCode> InsertItem(ItemDTO item)
         {
@@ -139,6 +174,31 @@ namespace AppShopAPI.Controllers
             DBContext.Remove(entity);
             await DBContext.SaveChangesAsync();
             return HttpStatusCode.OK;
+        }
+        [HttpGet("Test")]
+        public async Task<List<string[]>> Test()
+        {
+            List<string[]> list = new List<string[]>();
+
+            string[] mass =
+            {
+                "Test1",
+                "test2",
+                "Tester3",
+                "SecsTest4",
+                "BigSirTest5"
+            };
+            string[] mass1 =
+            {
+                "Test6",
+                "test7",
+                "Tester8",
+                "SecsTest9",
+                "BigSirTest/10"
+            };
+            list.Add(mass1);
+            list.Add(mass);
+            return list;
         }
     }
 }
