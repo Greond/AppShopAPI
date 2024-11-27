@@ -16,7 +16,7 @@ public partial class TestContext : DbContext
     }
 
     public virtual DbSet<Item> Items { get; set; }
-
+    public virtual DbSet<ItemCategory> ProductCategory { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     { }
 
@@ -40,7 +40,7 @@ public partial class TestContext : DbContext
                 .HasComment("Name of item");
             entity.Property(e => e.OldPrice).HasComment("Price of item without discount");
             entity.Property(e => e.Price).HasComment("Currect Price of item");
-            entity.Property(e => e.ProductType)
+            entity.Property(e => e.ProductType_id)
                 .HasMaxLength(35)
                 .HasComment("Type of item");
             entity.Property(e => e.Quantity).HasComment("how many count of item");
@@ -55,7 +55,17 @@ public partial class TestContext : DbContext
                 .HasDefaultValueSql("'0'")
                 .HasComment("is item in stock");
         });
+        modelBuilder.Entity<ItemCategory>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+            entity.Property(e => e.Name)
+              .HasMaxLength(100)
+              .HasComment("Name of product category");
+            entity.Property(e => e.Description)
+               .HasComment("Description of product category")
+               .HasColumnType("tinytext");
 
+        });
         OnModelCreatingPartial(modelBuilder);
     }
 

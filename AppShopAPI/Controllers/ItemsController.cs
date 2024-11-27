@@ -4,17 +4,18 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 
 namespace AppShopAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ItemController : ControllerBase
+    public class ItemsController : ControllerBase
     {
         private readonly TestContext DBContext;
 
-        public ItemController(TestContext DBContext)
+        public ItemsController(TestContext DBContext)
         {
             this.DBContext = DBContext;
         }
@@ -25,22 +26,7 @@ namespace AppShopAPI.Controllers
             //  var List = await DBContext.Items.ToListAsync();
 
             var List = await DBContext.Items.Select(
-                s => new ItemDTO
-                {
-                    Id = s.Id,
-                    Name = s.Name,
-                    Description = s.Description,
-                    ProductType = s.ProductType,
-                    Price = s.Price,
-                    OldPrice = s.OldPrice,
-                    Stock = s.Stock,
-                    Icon = s.Icon,
-                    Stars = s.Stars,
-                    ReviewsCount = s.ReviewsCount,
-                    Quantity = s.Quantity,
-                    MainDescription = s.MainDescription,
-                    Specifications = s.Specifications
-                }
+                s => new ItemDTO(s)
                 ).ToListAsync();
 
             if (List.Count > 0)
@@ -58,22 +44,7 @@ namespace AppShopAPI.Controllers
         {
             // Item item = await DBContext.Items.FirstOrDefaultAsync(s => s.Id == Id);
             ItemDTO item = await DBContext.Items.Select(
-                s => new ItemDTO
-                {
-                    Id = s.Id,
-                    Name = s.Name,
-                    Description = s.Description,
-                    ProductType = s.ProductType,
-                    Price = s.Price,
-                    OldPrice = s.OldPrice,
-                    Stock = s.Stock,
-                    Icon = s.Icon,
-                    Stars = s.Stars,
-                    ReviewsCount = s.ReviewsCount,
-                    Quantity = s.Quantity,
-                    MainDescription = s.MainDescription,
-                    Specifications = s.Specifications
-                }).FirstOrDefaultAsync(s => s.Id == Id);
+                s => new ItemDTO(s)).FirstOrDefaultAsync(s => s.Id == Id);
             if (item == null)
             {
                 return NotFound();
@@ -84,27 +55,34 @@ namespace AppShopAPI.Controllers
             }
         }
 
-        [HttpGet("ByProperty")]
-        public async Task<ActionResult<List<ItemDTO>>> GetByProperty([FromQuery] bool Stock)
+        [HttpGet("Categories")]
+        public async Task<ActionResult<List<ItemCategoryDTO>>> GetItemsCategories()
         {
-            var List = await DBContext.Items.Where(s => s.Stock == Stock).Select(
-                s => new ItemDTO
-                {
-                    Id = s.Id,
-                    Name = s.Name,
-                    Description = s.Description,
-                    ProductType = s.ProductType,
-                    Price = s.Price,
-                    OldPrice = s.OldPrice,
-                    Stock = s.Stock,
-                    Icon = s.Icon,
-                    Stars = s.Stars,
-                    ReviewsCount = s.ReviewsCount,
-                    Quantity = s.Quantity,
-                    MainDescription = s.MainDescription,
-                    Specifications = s.Specifications
-                }
+            List<ItemCategoryDTO> list = await DBContext.ProductCategory.Select(
+                s => new ItemCategoryDTO(s)
                 ).ToListAsync();
+            if (list.Count > 0)
+            {
+                return list;
+                // return Ok(List);
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpGet("ByProperty")]
+        public async Task<ActionResult<List<ItemDTO>>> GetByProperty([FromQuery] bool? Stock,int Count)
+        {
+            //Get (Count) items where (stock) sorted by descending quanity
+            List<ItemDTO> List = new List<ItemDTO>();
+            if (Stock != null & Count > 0)
+            {
+                List = await DBContext.Items.Where(s => s.Stock == Stock).OrderByDescending(r => r.Quantity).Take(Count).Select(
+               s => new ItemDTO(s)
+               ).ToListAsync();
+            }
 
             if (List.Count > 0)
             {
@@ -124,7 +102,7 @@ namespace AppShopAPI.Controllers
             {
                 Name = item.Name,
                 Description = item.Description,
-                ProductType = item.ProductType,
+                ProductType_id = item.ProductType_id,
                 Price = item.Price,
                 OldPrice = item.OldPrice,
                 Stock = item.Stock,
@@ -149,7 +127,7 @@ namespace AppShopAPI.Controllers
 
             entity.Name = item.Name;
             entity.Description = item.Description;
-            entity.ProductType = item.ProductType;
+            entity.ProductType_id = item.ProductType_id;
             entity.Price = item.Price;
             entity.OldPrice = item.OldPrice;
             entity.Stock = item.Stock;    

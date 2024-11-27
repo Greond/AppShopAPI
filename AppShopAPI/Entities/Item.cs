@@ -1,5 +1,7 @@
-﻿using System;
+﻿using AppShopAPI.DTO;
+using System;
 using System.Collections.Generic;
+using System.Numerics;
 
 namespace AppShopAPI.Entities;
 
@@ -20,7 +22,7 @@ public partial class Item
     /// <summary>
     /// Type of item
     /// </summary>
-    public string? ProductType { get; set; }
+    public long? ProductType_id { get; set; }
 
     /// <summary>
     /// Currect Price of item

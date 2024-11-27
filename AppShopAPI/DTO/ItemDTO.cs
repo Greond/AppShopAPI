@@ -1,7 +1,27 @@
-﻿namespace AppShopAPI.DTO
+﻿using AppShopAPI.Entities;
+using System.Numerics;
+namespace AppShopAPI.DTO
 {
     public class ItemDTO
     {
+
+        public ItemDTO(Item s)
+        {
+            //deep copy
+            Id = s.Id;
+            Name = s.Name;
+            Description = s.Description;
+            ProductType_id = s.ProductType_id;
+            Price = s.Price;
+            OldPrice = s.OldPrice;
+            Stock = s.Stock;
+            Icon = s.Icon;
+            Stars = s.Stars;
+            ReviewsCount = s.ReviewsCount;
+            Quantity = s.Quantity;
+            MainDescription = s.MainDescription;
+            Specifications = s.Specifications;
+        }
         public long Id { get; set; }
 
         /// <summary>
@@ -17,7 +37,7 @@
         /// <summary>
         /// Type of item
         /// </summary>
-        public string? ProductType { get; set; }
+        public long? ProductType_id { get; set; }
 
         /// <summary>
         /// Currect Price of item
